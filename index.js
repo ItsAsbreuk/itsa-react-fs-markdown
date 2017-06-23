@@ -45,7 +45,7 @@ var ReactMarkdown = React.createClass({
 });
 
 var FsMarkdown = {
-    readFile: function(filename) {
+    readFile: function(filename, returnPlainText) {
         if (!endsWith(filename.toUpperCase(), '.MD')) {
             filename += '.MD';
         }
@@ -53,11 +53,12 @@ var FsMarkdown = {
             CACHE[filename] = new Promise(function(resolve) {
                 fs.readFile(Path.join(BASE_DIR, filename), 'utf8', function(err, data) {
                     if (err) {
-                        resolve({__html: ''});
+                        resolve(returnPlainText ? '' : {__html: ''});
                     }
                     else {
-                        var Component = React.createElement(ReactMarkdown, {source: data});
-                        resolve({__html: ReactDOMServer.renderToStaticMarkup(Component)});
+                        var Component = React.createElement(ReactMarkdown, {source: data}),
+                            staticMarkup = ReactDOMServer.renderToStaticMarkup(Component);
+                        resolve(returnPlainText ? staticMarkup : {__html: staticMarkup});
                     }
                 });
             });
